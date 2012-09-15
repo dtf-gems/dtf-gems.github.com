@@ -7,13 +7,13 @@ functionality to DTF. DTF is the master skeleton within which all other dtf-* ge
 
 ## Internal architecture
 
-DTF is designed in such a way that, with the master skepeton in place, one has only to load additional plugins
+DTF is designed in such a way that, with the master skeleton in place, one has only to load additional plugins
 from any available DTF extension gem to add additional functionality. This can be anything ranging from
 additional languages such as Ruby, Python, C, C++, etc, to testing methods and methodologies.
 
 ## Current Status
 
-DTF is 100% Alpha quality right now. (For those that don't know what that means, generally this means DTF is
+DTF is 100% Alpha quality right now. For those that don't know what that means, generally this means DTF is
     comprised of code with a vastly high potential for buggy code that may or may not even run. Consider DTF
     to be experimental until further notice. This README will be updated to reflect when DTF reaches a
     'stable' quality.
@@ -23,6 +23,13 @@ DTF is 100% Alpha quality right now. (For those that don't know what that means,
     of what DTF is, and how that is implemented is not firmly etched in stone yet, so both of those can, and
     most likely will, change as time passes. If you can deal with that, please, by all means, feel free to
     contribute.
+
+    **NOTE: DTF was originally released with a soon-to-be 100% different codebase, and gemified. This version
+    will be gemified as well, _but_ in order to ensure that we can continue to use the 'dtf' name on
+    rubygems.org we have to bump the version number by .1 and go from there. So, that changes our new
+    numbering scheme a bit. The next release of 'dtf' that will be 100% the _new_ codebase will be 0.2.2. The
+    last 'dtf' that is the original code base is: dtf-0.2.1 on rubygems.org. Thanks for bearing with DTF while
+    the codebase change is swapped over.
 
 ## Branches
 
@@ -70,12 +77,111 @@ really is when it comes to version numbers and what they mean. This _will_ be a 
 
 
 ## Installation
+DTF uses Thor for setup and configuration, and has 3 possible sub-tasks under task name 'dtf_setup':
 
-To Be Announced
+```sh
+∴ thor list
+dtf_setup
+---------
+thor dtf_setup:config [NAME]  # Copy db configuration file(s)
+thor dtf_setup:install        # Installs database migrations, the main schema, and configuration files
+```
+
+As you can see, you can copy just the db config files, and/or the migrations, and main schema.
+
+```sh
+∴ thor help dtf_setup
+Tasks:
+  thor dtf_setup:config [NAME]  # Copy db configuration file(s)
+  thor dtf_setup:help [TASK]    # Describe available tasks or one specific task
+  thor dtf_setup:install        # Installs database migrations, the main schema, and configuration files
+```
+
+To see how to install everything you would run the following command:
+
+```sh
+∴ thor dtf_setup:help install
+Usage:
+  thor dtf_setup:install
+
+Options:
+  [--force]  
+
+Installs database migrations, the main schema, and configuration files
+```
+
+To see how to install just the configuration files for accessing the database(s), you would run:
+
+```sh
+∴ thor dtf_setup:help config
+Usage:
+  thor dtf_setup:config [NAME]
+
+Options:
+  [--force]  
+
+Copy db configuration file(s)
+```
+
+Once the configuration files and/or database migrations are in place, the remaining setup is handled by 'rake'.
+To see all possible commands, you would run 'rake -T', and pick the one(s) you need.
+
+```sh
+∴ rake -T
+rake build              # Build dtf-0.2.2.gem into the pkg directory
+rake db:create          # Create the database from config/database.yml for the current Rails.env (use db:create:all to create all dbs i...
+rake db:drop            # Drops the database for the current Rails.env (use db:drop:all to drop all databases)
+rake db:fixtures:load   # Load fixtures into the current environment's database.
+rake db:migrate         # Migrate the database (options: VERSION=x, VERBOSE=false).
+rake db:migrate:status  # Display status of migrations
+rake db:new_migration   # Create a new migration
+rake db:rollback        # Rolls the schema back to the previous version (specify steps w/ STEP=n).
+rake db:schema:dump     # Create a db/schema.rb file that can be portably used against any DB supported by AR
+rake db:schema:load     # Load a schema.rb file into the database
+rake db:seed            # Load the seed data from db/seeds.rb
+rake db:setup           # Create the database, load the schema, and initialize with the seed data (use db:reset to also drop the db first)
+rake db:structure:dump  # Dump the database structure to db/structure.sql. Specify another file with DB_STRUCTURE=db/my_structure.sql
+rake db:version         # Retrieves the current schema version number
+rake install            # Build and install dtf-0.2.2.gem into system gems
+rake release            # Create tag v0.2.2 and build and push dtf-0.2.2.gem to Rubygems
+```
 
 
 ## Usage
+Once you have finished configuring your database(s) and applying all migrations, you are now ready to work with
+DTF directly. The following is a summary of all current possible commands, and their expected options/parameters:
 
-To Be Announced
+```sh
+dtf -v|--version -h|--help [[sub_cmds <options>] -h|--help]
 
+Valid [sub_cmds] are: create_(user|vs), delete_(user|vs)
+See 'dtf [sub_cmd] -h' for each sub_cmd's details and options
 
+dtf create_user -h
+Options:
+      --user-name, -u <s>:   Username for new TF user - REQUIRED
+      --full-name, -n <s>:   Real name for new TF user - REQUIRED
+  --email-address, -e <s>:   Email address for new TF user - REQUIRED
+               --help, -h:   Show this message
+
+dtf delete_user -h
+Options:
+               --user-name, -u <s>:   Username of TF user to delete - REQUIRED
+  --delete-all, --no-delete-all, -d:   Delete _all_ VSs this user owns (default: true)
+                         --help, -h:   Show this message
+
+dtf create_vs -h
+Options:
+    --user-name, -u <s>:   TF user to associate this VS with - REQUIRED
+         --name, -n <s>:   Name for new VS - REQUIRED
+  --description, -d <s>:   Description of VS's intended use - OPTIONAL (default: )
+             --help, -h:   Show this message
+
+dtf delete_vs -h
+Options:
+  --user-name, -u <s>:   Username of VS owner - REQUIRED
+         --id, -i <i>:   ID of VS to be deleted - REQUIRED
+           --help, -h:   Show this message
+```
+
+Enjoy!
